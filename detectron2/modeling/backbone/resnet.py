@@ -603,11 +603,31 @@ Alias for backward compatibiltiy.
 """
 
 
-def make_stage(*args, **kwargs):
+# def make_stage(*args, **kwargs):
+#     """
+#     Deprecated alias for backward compatibiltiy.
+#     """
+#     return ResNet.make_stage(*args, **kwargs)
+
+
+def make_stage(block_class, num_blocks, first_stride, **kwargs):
     """
-    Deprecated alias for backward compatibiltiy.
+    Create a resnet stage by creating many blocks.
+    Args:
+        block_class (class): a subclass of ResNetBlockBase
+        num_blocks (int):
+        first_stride (int): the stride of the first block. The other blocks will have stride=1.
+            A `stride` argument will be passed to the block constructor.
+        kwargs: other arguments passed to the block constructor.
+
+    Returns:
+        list[nn.Module]: a list of block module.
     """
-    return ResNet.make_stage(*args, **kwargs)
+    blocks = []
+    for i in range(num_blocks):
+        blocks.append(block_class(stride=first_stride if i == 0 else 1, **kwargs))
+        kwargs["in_channels"] = kwargs["out_channels"]
+    return blocks
 
 
 @BACKBONE_REGISTRY.register()
